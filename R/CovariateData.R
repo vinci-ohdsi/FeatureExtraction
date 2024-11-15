@@ -34,7 +34,7 @@
 #' @aliases CovariateData
 #' @export
 #' @import Andromeda
-#' @importClassesFrom RSQLite SQLiteConnection
+#' @importClassesFrom duckdb duckdb_connection 
 #' @importClassesFrom DBI DBIObject DBIConnection
 setClass("CovariateData", contains = "Andromeda")
 
