@@ -62,10 +62,14 @@ tidyCovariateData <- function(covariateData,
   }
   start <- Sys.time()
 
+  ParallelLogger::logInfo("benchmark | FeatureExtraction::tidyCovariateData | creating newCovariateData | start")
   newCovariateData <- Andromeda::andromeda(
     covariateRef = covariateData$covariateRef,
     analysisRef = covariateData$analysisRef
   )
+  ParallelLogger::logInfo("benchmark | FeatureExtraction::tidyCovariateData | creating newCovariateData | end")
+  
+  
   metaData <- attr(covariateData, "metaData")
   populationSize <- metaData$populationSize
   if (covariateData$covariates %>% count() %>% pull() == 0) {
