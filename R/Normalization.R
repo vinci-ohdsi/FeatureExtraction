@@ -149,6 +149,7 @@ tidyCovariateData <- function(covariateData,
           deleteCovariateIds <- toDelete$covariateId
 
           # Next, find groups of covariates (analyses) that together cover everyone:
+          ParallelLogger::logInfo("benchmark | FeatureExtraction::tidyCovariateData | Find groups of covariates that cover everyone | start")
           analysisIds <- covariateData$valueCounts %>%
             inner_join(covariateData$binaryCovariateIds, by = "covariateId") %>%
             filter(!.data$covariateId %in% deleteCovariateIds) %>%
@@ -157,6 +158,8 @@ tidyCovariateData <- function(covariateData,
             summarise(n = sum(n, na.rm = TRUE)) %>%
             filter(.data$n == populationSize) %>%
             select(.data$analysisId)
+          ParallelLogger::logInfo("benchmark | FeatureExtraction::tidyCovariateData | Find groups of covariates that cover everyone | end")
+          
           # For those, find most prevalent covariate, and mark it for deletion:
           valueCounts <- analysisIds %>%
             inner_join(covariateData$covariateRef, by = "analysisId") %>%
@@ -188,7 +191,10 @@ tidyCovariateData <- function(covariateData,
         filter(!.data$covariateId %in% deleteCovariateIds)
     }
 
+    
+    
     if (normalize) {
+      ParallelLogger::logInfo("benchmark | FeatureExtraction::tidyCovariateData | Normalizing covariates | start")
       ParallelLogger::logInfo("Normalizing covariates")
       newCovariates <- newCovariates %>%
         inner_join(covariateData$maxValuePerCovariateId, by = "covariateId") %>%
@@ -198,6 +204,8 @@ tidyCovariateData <- function(covariateData,
         collect()
     }
     newCovariateData$covariates <- newCovariates
+    ParallelLogger::logInfo("benchmark | FeatureExtraction::tidyCovariateData | Normalizing covariates | end")
+    
   }
 
   class(newCovariateData) <- "CovariateData"
