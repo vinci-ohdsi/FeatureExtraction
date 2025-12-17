@@ -1,8 +1,8 @@
 Package: FeatureExtraction
 Type: Package
 Title: Generating Features for a Cohort
-Version: 3.7.2
-Date: 2024-10-17
+Version: 3.12.0
+Date: 2025-10-28
 Authors@R: c(
   person("Martijn", "Schuemie", , "schuemie@ohdsi.org", role = c("aut")),
   person("Marc", "Suchard", role = c("aut")),
@@ -17,7 +17,7 @@ Description: An R interface for generating features for a cohort using data in t
 Depends:
   R (>= 3.2.2),
   DatabaseConnector (>= 3.0.0),
-  Andromeda
+  Andromeda (>= 1.0.0)
 Imports:
   methods,
   dplyr,
@@ -31,7 +31,8 @@ Imports:
   rlang,
   RSQLite,
   DBI,
-  checkmate
+  checkmate,
+  vroom
 Suggests:
   testthat,
   knitr,

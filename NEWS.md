@@ -1,3 +1,34 @@
+FeatureExtraction 3.12.0
+=======================
+
+- Fix non reproducible behavior in removing redundant covariates when they are equally prevalent (#315)
+
+FeatureExtraction 3.11.0
+=======================
+
+- Improve tidyCovariates performance when using Andromeda version >= 1.0.0 (#308)
+- Fix error in merging covariateContinuous to multiple features in getDbCovariateData (#306)
+- Add arguments to getDbCovariateData to support a custom covariate cohort schema/table (#292)
+
+FeatureExtraction 3.10.0
+=======================
+
+- Require Andromeda version 1.0.0 (#303)
+
+FeatureExtraction 3.9.0
+=======================
+
+- Compatibility with Andromeda version 1.0.0 (#288)
+- Fix documentation for custom covariate builder example (#297)
+
+FeatureExtraction 3.8.0
+=======================
+
+- Add temporal annual distribution functionality (#271)
+- Fix timeRef not returned from tidyCovariates (#289)
+- Set default for tempEmulationSchema (#286)
+- Fix R-check on Mac OS (#294)
+
 FeatureExtraction 3.7.2
 =======================
 

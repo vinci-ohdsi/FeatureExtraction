@@ -1,4 +1,4 @@
-# Copyright 2024 Observational Health Data Sciences and Informatics
+# Copyright 2025 Observational Health Data Sciences and Informatics
 #
 # This file is part of FeatureExtraction
 #
@@ -47,6 +47,7 @@ filterByRowId <- function(covariateData, rowIds) {
   if (isAggregatedCovariateData(covariateData)) {
     stop("Cannot filter aggregated data by rowId")
   }
+
   covariates <- covariateData$covariates %>%
     filter(.data$rowId %in% rowIds)
 

@@ -1,4 +1,4 @@
-# Copyright 2024 Observational Health Data Sciences and Informatics
+# Copyright 2025 Observational Health Data Sciences and Informatics
 #
 # This file is part of FeatureExtraction
 #
@@ -159,7 +159,7 @@ tidyCovariateData <- function(covariateData,
             inner_join(covariateData$valueCounts, by = "covariateId") %>%
             select(.data$analysisId, .data$covariateId, n) %>%
             collect()
-          valueCounts <- valueCounts[order(valueCounts$analysisId, -valueCounts$n), ]
+          valueCounts <- valueCounts[order(valueCounts$analysisId, -valueCounts$n, valueCounts$covariateId), ]
           deleteCovariateIds <- c(deleteCovariateIds, valueCounts$covariateId[!duplicated(valueCounts$analysisId)])
           ignoreCovariateIds <- valueCounts$covariateId
           ParallelLogger::logInfo("Removing ", length(deleteCovariateIds), " redundant covariates")
@@ -179,21 +179,31 @@ tidyCovariateData <- function(covariateData,
       deleteCovariateIds <- c(deleteCovariateIds, toDelete$covariateId)
       ParallelLogger::logInfo("Removing ", nrow(toDelete), " infrequent covariates")
     }
-    if (length(deleteCovariateIds) > 0) {
-      newCovariates <- newCovariates %>%
-        filter(!.data$covariateId %in% deleteCovariateIds)
-    }
 
+    # When performing both filtering by covariate IDs and normalization, it is *much* faster
+    # to apply the filtering to the maxValuePerCovariateId table, and let the inner join
+    # apply the filtering to the covariate table (instead of filtering the covariate table
+    # directly).
     if (normalize) {
       ParallelLogger::logInfo("Normalizing covariates")
+      if (length(deleteCovariateIds) > 0) {
+        covariateData$maxValuePerCovariateId <- covariateData$maxValuePerCovariateId %>%
+          filter(!.data$covariateId %in% deleteCovariateIds)
+      }
       newCovariates <- newCovariates %>%
         inner_join(covariateData$maxValuePerCovariateId, by = "covariateId") %>%
         mutate(covariateValue = .data$covariateValue / .data$maxValue) %>%
         select(-.data$maxValue)
       metaData$normFactors <- covariateData$maxValuePerCovariateId %>%
         collect()
+    } else if (length(deleteCovariateIds) > 0) {
+      newCovariates <- newCovariates %>%
+        filter(!.data$covariateId %in% deleteCovariateIds)
     }
     newCovariateData$covariates <- newCovariates
+    if (!is.null(covariateData$timeRef)) {
+      newCovariateData$timeRef <- covariateData$timeRef
+    }
   }
 
   class(newCovariateData) <- "CovariateData"

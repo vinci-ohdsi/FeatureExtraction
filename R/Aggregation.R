@@ -1,4 +1,4 @@
-# Copyright 2024 Observational Health Data Sciences and Informatics
+# Copyright 2025 Observational Health Data Sciences and Informatics
 #
 # This file is part of FeatureExtraction
 #
@@ -56,6 +56,9 @@ aggregateCovariates <- function(covariateData) {
   class(result) <- "CovariateData"
   attr(class(result), "package") <- "FeatureExtraction"
   populationSize <- attr(covariateData, "metaData")$populationSize
+
+  # tmp rename rowId var
+  covariateData$covariates <- covariateData$covariates %>% dplyr::rename(rowIdTemp = .data$rowId)
 
   # Aggregate binary variables
   result$covariates <- covariateData$analysisRef %>%
@@ -128,6 +131,10 @@ aggregateCovariates <- function(covariateData) {
   if (nrow(covariatesContinuous) > 0) {
     result$covariatesContinuous <- covariatesContinuous
   }
+
+  # revert tmp change
+  covariateData$covariates <- covariateData$covariates %>% dplyr::rename(rowId = .data$rowIdTemp)
+
   delta <- Sys.time() - start
   writeLines(paste("Aggregating covariates took", signif(delta, 3), attr(delta, "units")))
   return(result)

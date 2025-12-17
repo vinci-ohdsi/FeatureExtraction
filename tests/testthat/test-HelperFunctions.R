@@ -19,7 +19,7 @@ test_that("Test helper functions for non-aggregated covariate data", {
   expect_equal(unique(pull(covariateDataFiltered$covariates, rowId)), 1)
 
   locallyAggregated <- aggregateCovariates(covariateData)
-  expect_error(filterByCohortDefinitionId(locallyAggregated, cohortIds = c(1)), "no such column")
+  expect_error(filterByCohortDefinitionId(locallyAggregated, cohortIds = c(1)))
 
   expect_error(filterByCohortDefinitionId(covariateData, cohortIds = c(1)), "Can only filter aggregated")
 
