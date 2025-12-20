@@ -380,6 +380,9 @@
 #' @param useVisitConceptCountShortTerm                        The number of visits observed in the
 #'                                                             short term window, stratified by visit
 #'                                                             concept ID. (analysis ID 925)
+#' @param useCareSiteCount                                     The count of distinct care sites
+#'                                                             visited by a person between the cohort
+#'                                                             start and end dates. (analysis ID 927)
 #' @param longTermStartDays                                    What is the start day (relative to the
 #'                                                             index date) of the long-term window?
 #' @param mediumTermStartDays                                  What is the start day (relative to the
@@ -644,6 +647,7 @@ createCovariateSettings <- function(useDemographicsGender = FALSE,
                                     useVisitConceptCountLongTerm = FALSE,
                                     useVisitConceptCountMediumTerm = FALSE,
                                     useVisitConceptCountShortTerm = FALSE,
+                                    useCareSiteCount = FALSE,
                                     longTermStartDays = -365,
                                     mediumTermStartDays = -180,
                                     shortTermStartDays = -30,
