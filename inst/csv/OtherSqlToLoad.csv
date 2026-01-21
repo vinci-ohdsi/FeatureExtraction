@@ -1,3 +1,4 @@
 analysisName,sqlFileName
 cohort,CohortBasedBinaryCovariates.sql
 cohortCount,CohortBasedCountCovariates.sql
+CareSite,DemographicsCareSiteConcept.sql
