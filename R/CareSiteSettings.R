@@ -97,6 +97,26 @@ createCareSiteEraCovariateSettings <- function(
     includedCareSiteClassIds <- ""
   }
   
+  makeTimeLabel <- function(end_day, start_day,
+                            end_reference_date, start_reference_date) {
+    # TODO ensure reference_date == "cohort_start_date" or "cohort_end_date"
+    
+    startTimeLabel <- ifelse(start_day == "anyTimePrior", "any time prior", paste(start_day, "days"))
+    endTimeLabel <-  ifelse(end_day == "anyTimeAfter", "any time after", paste(end_day, "days"))
+    
+    endLabel <- paste("relative to", 
+                      ifelse(end_reference_date == "cohort_start_date",
+                             "index", "cohort exit"))
+    if (start_reference_date == end_reference_date) {
+      return(paste(startTimeLabel, "through", endTimeLabel, endLabel))
+    } else {
+      startLabel <- paste("relative to",
+                          ifelse(start_reference_date == "cohort_start_date",
+                                 "index", "cohort exit"))
+      return(paste(startTimeLabel, startLabel, "through", endTimeLabel, endLabel))
+    }
+  }
+  
   careSiteCovariateSettings <- createDetailedCovariateSettings(
     analyses = list(createAnalysisDetails(
       analysisId = analysisId,
