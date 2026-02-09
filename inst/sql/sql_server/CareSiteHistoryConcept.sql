@@ -1,24 +1,25 @@
--- grab observed care site concepts for care_site_history
-DROP TABLE IF EXISTS #tmp_care_site_history_concept1;
+-- grab observed care site concepts for care_site_era
+DROP TABLE IF EXISTS #tmp_care_site_era_concept1;
 
 SELECT DISTINCT
 	cohort.cohort_definition_id,
 	cohort.subject_id,
-	csh.care_site_concept_id -- change to care_site.care_site_concept_id
-INTO #tmp_care_site_history_concept1
+	care_site.care_site_concept_id
+--	csh.care_site_concept_id -- change to care_site.care_site_concept_id
+INTO #tmp_care_site_era_concept1
 FROM @cohort_table cohort
-INNER JOIN @cdm_database_schema.care_site_history csh
+INNER JOIN @cdm_database_schema.care_site_era csh
 	ON cohort.subject_id = csh.entity_id
--- INNER JOIN @cdm_database_schema.care_site
---	ON care_site.care_site_id = csh.care_site_id	
+INNER JOIN @cdm_database_schema.care_site
+	ON care_site.care_site_id = csh.care_site_id	
 WHERE cohort_definition_id != 0	
-  AND csh.care_site_concept_id != 0
+  AND care_site_concept_id != 0
   AND csh.entity_field_id = 1147026
 {@end_day != 'anyTimeAfter'} ? {
-  AND csh.start_date <= DATEADD(DAY, @end_day, cohort.@end_reference_date)
+  AND csh.care_site_era_start_date <= DATEADD(DAY, @end_day, cohort.@end_reference_date)
 }
 {@start_day != 'anyTimePrior'} ? {		
-  AND csh.end_date >= DATEADD(DAY, @start_day, cohort.@start_reference_date)
+  AND csh.care_site_era_end_date >= DATEADD(DAY, @start_day, cohort.@start_reference_date)
 }
 {@cohort_definition_id != -1} ? {
 	AND cohort_definition_id IN (@cohort_definition_id)
@@ -26,15 +27,15 @@ WHERE cohort_definition_id != 0
 ;
 
 -- grab all ancestor and observed care site concepts
-DROP TABLE IF EXISTS #tmp_care_site_history_concept2;
+DROP TABLE IF EXISTS #tmp_care_site_era_concept2;
 
 {@include_ancestor_concepts} ? {
 SELECT
 	cohort.cohort_definition_id,
 	cohort.subject_id,
 	ancestor.ancestor_concept_id AS care_site_concept_id
-INTO #tmp_care_site_history_concept2	
-FROM #tmp_care_site_history_concept1 AS cohort
+INTO #tmp_care_site_era_concept2	
+FROM #tmp_care_site_era_concept1 AS cohort
 JOIN @cdm_database_schema.concept_ancestor AS ancestor
 	ON ancestor.descendant_concept_id = cohort.care_site_concept_id
 WHERE ancestor.descendant_concept_id != ancestor.ancestor_concept_id
@@ -42,18 +43,18 @@ ORDER BY cohort_definition_id, subject_id
 ;
 }
 
-DROP TABLE IF EXISTS #tmp_care_site_history_concept;
+DROP TABLE IF EXISTS #tmp_care_site_era_concept;
 
 SELECT
   cohort_definition_id,
   subject_id,
   care_site_concept_id
-INTO #tmp_care_site_history_concept
+INTO #tmp_care_site_era_concept
 FROM (
-  SELECT * FROM #tmp_care_site_history_concept1
+  SELECT * FROM #tmp_care_site_era_concept1
 {@include_ancestor_concepts} ? {
   UNION
-  SELECT * FROM #tmp_care_site_history_concept2
+  SELECT * FROM #tmp_care_site_era_concept2
 }
 )
 {@included_care_site_class_ids != ''} ? {
@@ -80,7 +81,7 @@ SELECT
 	1 AS covariate_value 
 }
 INTO @covariate_table
-FROM #tmp_care_site_history_concept
+FROM #tmp_care_site_era_concept
 WHERE care_site_concept_id != 0
 {@excluded_concept_table != ''} ? {	
 	AND care_site_concept_id  NOT IN (SELECT id FROM @excluded_concept_table)
@@ -110,7 +111,7 @@ INSERT INTO #cov_ref (
 	concept_id
 	)
 SELECT covariate_id,
-  CAST(CONCAT('care_site_history_table @time_label: ',
+  CAST(CONCAT('care_site_era_table @time_label: ',
     CASE WHEN concept_name IS NULL
       THEN 'Unknown concept'
       ELSE concept_name
